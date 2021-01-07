@@ -54,12 +54,16 @@ def CreateTelegram(phone_number : str):
 
     """
 
-    basic_telegram_location= r'Telegram/tg/Telegram.exe'
-    dest= 'Telegram/{phone}'.format(phone = phone_number)
+    basic_telegram_location= '{0}/Telegram.exe'.format(os.getcwd())
+    account_dir='{0}/Accounts/'.format(os.getcwd())
+    dest= '{0}{1}'.format(account_dir ,phone_number)
+
+    if not os.path.exists(account_dir):
+        os.mkdir(account_dir)
 
     logging.info("Create folder for new phone number")
     if not os.path.exists(dest):
-        os.makedirs(dest)
+        os.mkdir(dest)
     else:
         logging.info("{0} exist".format(dest))
 
@@ -74,17 +78,17 @@ def RunTelegram(phone_number : str):
         phone_number (str): phone number
     """
 
-    tg_exe_location= 'Telegram/{phone}/Telegram.exe'.format(phone = phone_number)
+    tg_exe_location= 'Accounts/{phone}/Telegram.exe'.format(phone = phone_number)
 
     logging.info("Run telegram app with wine")
     tg_desktop = ps.start("wine {0}".format(tg_exe_location))
 
-    logging.info("Wait 10 seconds")
-    sleep(10)
+    logging.info("Wait 20 seconds")
+    sleep(20)
     second_wait=0 # for try count of wait for load telegram
 
     logging.info("Detect Telegram is loading...")
-    while pyautogui.locateOnScreen("Telegram/img/telegram_first_screen.png", confidence=0.9) is None: # Wait until telegram app full loaded
+    while pyautogui.locateOnScreen("img/telegram_first_screen.png", confidence=0.9) is None: # Wait until telegram app full loaded
         second_wait+=1
         sleep(1)
 
@@ -107,7 +111,7 @@ def ControlTelegram(phone_number : str):
 
     if RunTelegram(phone_number):
         logging.info("Find Start messaging buttton on telegram app")
-        start_btn = pyautogui.locateOnScreen("Telegram/img/start_messaging.png", confidence=0.9) # Location of start messaging on screen
+        start_btn = pyautogui.locateOnScreen("img/start_messaging.png", confidence=0.9) # Location of start messaging on screen
         if start_btn is not None:
             start_btn = pyautogui.center(start_btn)
             btn_x, btn_y = start_btn
@@ -115,29 +119,39 @@ def ControlTelegram(phone_number : str):
             pyautogui.click(btn_x,btn_y)
 
             sleep(.5)
+
+            qr_code = pyautogui.locateOnScreen("img/login_via_phone_number.png", confidence=0.9)
+
+            if qr_code is not None:
+                qr_page = pyautogui.center(qr_code)
+                qr_x,qr_y = qr_page
+                pyautogui.click(qr_code,qr_y)
+                pyautogui.press('enter')
+
+                sleep(.5)
+
         else:
             logging.warning("Start messaging button not found")
             exit()
 
         logging.info("Find NEXT buttton location on telegram app")
-        next_btn = pyautogui.locateOnScreen("Telegram/img/next_btn.png", confidence=0.9) # Location of start messaging on screen        
+        next_btn = pyautogui.locateOnScreen("img/next_btn.png", confidence=0.9) # Location of start messaging on screen        
         if next_btn is not None:
             next_btn=pyautogui.center(next_btn)
             btn_x,btn_y=next_btn
 
             logging.info("Find country code location")
-            pyautogui.doubleClick(btn_x-100,btn_y-90) # 100 and 90 get it in test mode. maybe need  to change it
-            pyautogui.press("backspace")
+            pyautogui.doubleClick(btn_x-100,btn_y-90) # 100 and 90 get it in test mode. maybe need  to change it            pyautogui.press("backspace")
             pyautogui.write("+1")
             pyautogui.press("tab")
             pyautogui.write(phone_number)
             pyautogui.press('enter')
-            logging.info("Send activation code via telegram. wait 3.30 minutes")
+            logging.info("Send activation code via telegram. wait 4.30 minutes")
         else:
             logging.warning("NEXT button not found")
             exit(1)
 
-        sleep(4*60) # wait until telegram call
+        sleep(4*60+30) # wait until telegram call
 
 def DownloadVoice(address : str):
     req = requests.get(address)
@@ -183,7 +197,7 @@ def ExtractCode():
 # After get activition code from voice mail enter it on telegram
 def SubmitCodeTG(code : str):
     logging.info("Find NEXT button location")
-    next_btn = pyautogui.locateOnScreen("Telegram/img/next_btn.png", confidence=0.9) # Location of start messaging on screen
+    next_btn = pyautogui.locateOnScreen("img/next_btn.png", confidence=0.9) # Location of start messaging on screen
     if next_btn is not None:
         next_btn=pyautogui.center(next_btn)
 
@@ -197,6 +211,22 @@ def SubmitCodeTG(code : str):
     else:
         logging.warning("NEXT button not found")
         exit()
+
+def CorrectPhoneNumber(phone_number : str):
+    """Remove (,),- form phone number
+
+    Args:
+        phone_number (str): phone number
+
+    Returns:
+        [string]: Correct phone number
+
+    >>> print(CorrectPhoneNumber("(713) 681-3476"))
+    7136813476
+    """
+
+    phone_number = ''.join(re.findall('\d+',phone_number))
+    return phone_number
 
 
 def OpenBrowser(username : str, password : str):
@@ -225,7 +255,7 @@ def OpenBrowser(username : str, password : str):
             pass_elem.send_keys(password, Keys.RETURN)
             try: # Check if password is wrong
                 logging.info("Checking correct username and password")
-                WebDriverWait(browser,15).until(EC.presence_of_element_located((By.CLASS_NAME, 'uikit-text--danger')))
+                WebDriverWait(browser,10).until(EC.presence_of_element_located((By.CLASS_NAME, 'uikit-text--danger')))
                 logging.warning("Username or password is incorrect")
                 browser.close()
                 exit()
@@ -257,6 +287,8 @@ def OpenBrowser(username : str, password : str):
 
     phone_number=browser.find_element_by_class_name('phoneNumber').text
     logging.info("Account phone number is {0}".format(phone_number))
+
+    phone_number=CorrectPhoneNumber(phone_number)
 
     logging.info("Start Telegram Desktop...")
     ControlTelegram(phone_number) # Run telegram app
@@ -298,10 +330,12 @@ def Main():
 
         tg_activation_code = ExtractCode()
         SubmitCodeTG(tg_activation_code)
+        sleep(5)
+        ps.terminate(tg_desktop)
     else:
         logging.error("Error in inputs")
         print("Please enter all inputs.\nemail password phone_number")
-        exit(1)
+        exit()
 
 if __name__ == "__main__":
     Main()
