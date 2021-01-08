@@ -162,30 +162,54 @@ def DownloadVoice(address : str):
             f.write(req.content)
         
 def CorrectCode(text : str):
+    """Correct google speech recognitation errors
+
+    Args:
+        text (str): a text that extract from voice
+
+    Returns:
+        string: currect code
+
+    >>> print(CorrectCode("51971 again your code is 5519 Evan goodbye"))
+    51971 again your code is 55197 goodbye
+    """
+
     text = text.replace(' Evan','7') # addad 7 dar bazi mavaghe ke entehaye code 'Evan' khande mishe
     text=text.replace('four ','4')
 
     return text
 
 
-def ExtractCode():
+def ExtractCode(sound_address : str):
+    """Extract activition code from voice call with speech recognition
+
+    Args:
+        sound_address (str): address of voice call file
+
+    Returns:
+        str: activition code
+
+    >>> print(ExtractCode("sound_test.wav"))
+    55197
+    """
     r = sr.Recognizer()
 
-    with sr.AudioFile('./sound.wav') as source:
+    with sr.AudioFile(sound_address) as source:
         logging.info("Listenning voice mail")
         audio_text = r.listen(source)
         
         try:            
             # using google speech recognition
+            r.adjust_for_ambient_noise(source, duration=1)
             text = r.recognize_google(audio_text)
 
             logging.info("Correct incorect number...")
             text=CorrectCode(text)
 
             logging.info('Converting audio transcripts into text ...')
-            code = re.search('\d{5,}',text) # Peida kardan code 5 raghami dar tamas
+            # (?<!^) for not start with \d{5}. referenced from https://stackoverflow.com/a/15669590
+            code = re.search('(?<!^)\d{5}',text) # Find 5 digit number in text of voice mail
                 
-            print(code[0])
             logging.info("Activation code is {0}".format(code[0]))
 
             return code[0]
@@ -328,7 +352,7 @@ def Main():
 
         OpenBrowser(textnow_username,textnow_password)
 
-        tg_activation_code = ExtractCode()
+        tg_activation_code = ExtractCode("sound.wav")
         SubmitCodeTG(tg_activation_code)
         sleep(5)
         ps.terminate(tg_desktop)
