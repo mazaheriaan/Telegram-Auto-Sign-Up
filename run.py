@@ -102,7 +102,7 @@ def RunTelegram(phone_number : str):
 def CheckValidCode():
     logging.info("Check that code is valid...")
     sleep(.5)
-    invalid_code = pyautogui.locateOnScreen("img/valid_code.png", confidence=0.9)
+    invalid_code = pyautogui.locateOnScreen("img/invalid_code.png", confidence=0.9)
     if invalid_code is not None :
         logging.info("Activation code is invalid!")
         ps.terminate(tg_desktop)
