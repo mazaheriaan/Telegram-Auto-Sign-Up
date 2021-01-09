@@ -26,7 +26,6 @@ logging.getLogger().setLevel(logging.INFO)
 tg_desktop = '' # telegram desktop process.
 browser = '' # Chrome driver
 
-
 def CheckInput(email : str, password : str, country_code : str, phone_number : str) :
     """Check and validate input.
 
@@ -98,6 +97,16 @@ def RunTelegram(phone_number : str):
             exit()
 
     return True
+
+# Check when code enter for active Telegram is valid
+def CheckValidCode():
+    logging.info("Check that code is valid...")
+    sleep(.5)
+    invalid_code = pyautogui.locateOnScreen("img/valid_code.png", confidence=0.9)
+    if invalid_code is not None :
+        logging.info("Activation code is invalid!")
+        ps.terminate(tg_desktop)
+        exit()
 
 def ControlTelegram(phone_number : str):
     """Control Telegram desktop and control it with pyautogui.
@@ -232,9 +241,13 @@ def SubmitCodeTG(code : str):
         pyautogui.write(code)
         pyautogui.press('enter')
         logging.info("Logging to telegram...")
+
+        CheckValidCode() # Check that the code entered is correct
+
     else:
         logging.warning("NEXT button not found")
         exit()
+        
 
 def CorrectPhoneNumber(phone_number : str):
     """Remove (,),- form phone number
@@ -337,7 +350,10 @@ def OpenBrowser(username : str, password : str):
 
     logging.info("Find voice mail")
     call_sound = browser.find_elements_by_class_name('voiceMailAudio')
+    
     address=call_sound[-1].get_attribute('src')
+    logging.info("Close textnow.com")
+    browser.close()
     logging.info("Voice mail address is :{0}".format(address))
 
     DownloadVoice(address)
