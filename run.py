@@ -24,7 +24,7 @@ logging.getLogger().setLevel(logging.INFO)
 
 # Global variable
 tg_desktop = '' # telegram desktop process.
-browser = '' # Chrome driver
+browser = webdriver.Chrome(executable_path='{0}/chromedriver'.format(os.getcwd())) # Chrome driver
 
 def CheckInput(email : str, password : str, country_code : str, phone_number : str) :
     """Check and validate input.
@@ -44,6 +44,13 @@ def CheckInput(email : str, password : str, country_code : str, phone_number : s
         return True
     else:
         return False
+
+# When register be complate and user loged in
+def TgMainPage():
+    logging.info('Looking for Telegram main page')
+    while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
+        sleep(.5)
+    logging.info('User is now loggin')
 
 def CreateTelegram(phone_number : str):
     """Create a new folder and copy telegram app to that.
@@ -105,8 +112,43 @@ def CheckValidCode():
     invalid_code = pyautogui.locateOnScreen("img/invalid_code.png", confidence=0.9)
     if invalid_code is not None :
         logging.info("Activation code is invalid!")
-        ps.terminate(tg_desktop)
         exit()
+
+def ForgetPassword():
+    logging.info("Check that account set password")
+    sleep(.5)
+    forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
+    if forget_password is not None :
+        logging.info("Account has password")
+        exit()
+
+def CheckBannedPhone():
+    logging.info("Check that phone is banned")
+    phone_banned = pyautogui.locateOnScreen("img/phone_banned.png", confidence=0.9) # Location of phone_banned on screen
+    if phone_banned is not None:
+        logging.info('Your phone is banned')
+        browser.close()
+        exit()
+
+
+# Check that flooding number
+def FloodNumber():
+    logging.info("Check too many try")
+    flood_number = pyautogui.locateOnScreen("img/many_try.png", confidence=0.9) # Location of phone_banned on screen
+    if flood_number is not None:
+        logging.info('Click on send via sms')
+        browser.close()
+        exit()
+
+def SendViaSMS():
+    logging.info("Look for send via sms")
+    via_sms = pyautogui.locateOnScreen("img/via_sms.png", confidence=0.9) # Location of phone_banned on screen
+    if via_sms is not None:
+        logging.info('Click on send via sms')
+        sms_btn=pyautogui.center(via_sms)
+        btn_x,btn_y=sms_btn
+        pyautogui.click(btn_x,btn_y)
+
 
 def ControlTelegram(phone_number : str):
     """Control Telegram desktop and control it with pyautogui.
@@ -127,14 +169,14 @@ def ControlTelegram(phone_number : str):
             logging.info("Click on Start messaging button")
             pyautogui.click(btn_x,btn_y)
 
-            sleep(.5)
+            sleep(1)
 
             qr_code = pyautogui.locateOnScreen("img/login_via_phone_number.png", confidence=0.9)
 
             if qr_code is not None:
                 qr_page = pyautogui.center(qr_code)
                 qr_x,qr_y = qr_page
-                pyautogui.click(qr_code,qr_y)
+                pyautogui.click(qr_x,qr_y)
                 pyautogui.press('enter')
 
                 sleep(.5)
@@ -155,20 +197,29 @@ def ControlTelegram(phone_number : str):
             pyautogui.press("tab")
             pyautogui.write(phone_number)
             pyautogui.press('enter')
+            sleep(2)
+            CheckBannedPhone() # Check that the phone number is banned
+            FloodNumber()
+            SendViaSMS()
             logging.info("Send activation code via telegram. wait 4.30 minutes")
         else:
             logging.warning("NEXT button not found")
-            exit(1)
+            exit()
 
         sleep(4*60+30) # wait until telegram call
 
-def DownloadVoice(address : str):
-    req = requests.get(address)
+def Download(address : str, account : str, fileName : str):
+    if validators.url(address):        
+        req = requests.get(address)
 
-    if req.status_code == 200:
-        logging.info("Save voice mail on {0}/sound.wav".format(os.getcwd()))
-        with open('sound.wav','wb') as f:
-            f.write(req.content)
+        if req.status_code == 200:
+            dest_file = '{0}/Accounts/{1}/{2}'.format(os.getcwd(), account,fileName)
+            logging.info("Save file on {0}/Accounts/{1}/{2}".format(os.getcwd(), account,fileName))
+            with open(dest_file,'wb') as f:
+                f.write(req.content)
+        return True
+    else:
+        return False
         
 def CorrectCode(text : str):
     """Correct google speech recognitation errors
@@ -183,8 +234,9 @@ def CorrectCode(text : str):
     51971 again your code is 55197 goodbye
     """
 
-    text = text.replace(' Evan','7') # addad 7 dar bazi mavaghe ke entehaye code 'Evan' khande mishe
-    text=text.replace('four ','4')
+    text = text.replace(' Evan ','7') # addad 7 dar bazi mavaghe ke entehaye code 'Evan' khande mishe
+    text=text.replace(' four ','4')
+    text=text.replace(' to ','2')
 
     return text
 
@@ -218,14 +270,73 @@ def ExtractCode(sound_address : str):
             logging.info('Converting audio transcripts into text ...')
             # (?<!^) for not start with \d{5}. referenced from https://stackoverflow.com/a/15669590
             code = re.search('(?<!^)\d{5}',text) # Find 5 digit number in text of voice mail
-                
-            logging.info("Activation code is {0}".format(code[0]))
+            if code:    
+                logging.info("Activation code is {0}".format(code.group(0)))
+            else:
+                logging.info("Error in extract code from voice.wav")
+                #exit()
 
-            return code[0]
+            return code.group(0)
 
         
         except Exception as e:
             logging.error(str(e))
+
+def Sign_Up(name : str, family : str):
+    logging.info("Look for sign up button...")
+    sign_up_btn = pyautogui.locateOnScreen("img/sign_up.png", confidence=0.9) # Location of sign up button on screen
+    if sign_up_btn is not None:
+        logging.info('Look for last name textbox')
+        last_name_text=pyautogui.locateOnScreen('img/last_name.png',confidence=0.9) # Location of last name textbox on screen
+        if last_name_text is not None:
+            last_name_text = pyautogui.center(last_name_text)
+            btn_x,btn_y=last_name_text
+            logging.info('Click on last name textbox')
+            last_name_text.click(btn_x,btn_y)
+            pyautogui.write(family)
+            pyautogui.press('tab')
+            pyautogui.write(name)
+            pyautogui.press('enter')
+            logging.info("Click on SIGN UP button....")
+
+
+
+
+def GenerateFakePerson(phone_number : str):
+    logging.info('Open https://www.fakepersongenerator.com for generate fake person')
+    browser.get('https://www.fakepersongenerator.com/Index/generate')
+
+
+    logging.info("Wait until fake user image is loading...")
+    WebDriverWait(browser,60).until(EC.presence_of_element_located((By.CLASS_NAME, 'face')))
+
+    avatar_location = browser.find_elements_by_class_name('img-responsive')[1]
+    avatar_location = avatar_location.get_attribute('src')
+
+
+    logging.info("Download {0}".format(avatar_location))
+    if Download(avatar_location,phone_number,'avatar.jpg'):
+        sex = avatar_location.split('/')[-2]
+        name = browser.find_element_by_class_name('name')
+        name = name.find_element_by_class_name('click').text
+        name = name.split()[0]
+        family = name.split()[-1]
+
+        country = browser.find_elements_by_class_name('form-control')[-2]
+        country = country.get_attribute('value')
+
+        logging.info("Fake name is {0} {1}. Sex is {2}. Your country is {3}".format(name,family,sex,country))
+
+        Sign_Up(name,family)
+
+        dest_file = '{0}/Accounts/{1}/{2}'.format(os.getcwd(), phone_number,'info.txt')
+        with open(dest_file,'w') as f:
+            f.write('{0} {1}\n{2}\n{3}'.format(name,family,sex,country))
+        logging.info('Create info.txt at {0}'.format(dest_file))
+    else:
+        logging.info('Address of voice mail is incorrect')
+
+
 
 # After get activition code from voice mail enter it on telegram
 def SubmitCodeTG(code : str):
@@ -268,7 +379,7 @@ def CorrectPhoneNumber(phone_number : str):
 
 def OpenBrowser(username : str, password : str):
     logging.info("Load chrome driver")
-    browser = webdriver.Chrome(executable_path='{0}/chromedriver'.format(os.getcwd()))
+    
     logging.info("chrome driver was loaded")
     logging.info("Open https://www.textnow.com/login")
     browser.get('https://www.textnow.com/login')
@@ -326,9 +437,11 @@ def OpenBrowser(username : str, password : str):
     logging.info("Account phone number is {0}".format(phone_number))
 
     phone_number=CorrectPhoneNumber(phone_number)
+    account_phone_number = phone_number
 
     logging.info("Start Telegram Desktop...")
     ControlTelegram(phone_number) # Run telegram app
+
 
     logging.info("Refresh browser...")
     browser.refresh()
@@ -339,24 +452,30 @@ def OpenBrowser(username : str, password : str):
             WebDriverWait(browser,60).until(EC.presence_of_element_located((By.CLASS_NAME, 'chat-preview-list')))
             break
         except TimeoutException:
-            logging.warning("Can't locate chat-preview-list. Refresh browser..")
+            logging.info("Can't locate chat-preview-list. Refresh browser..")
             browser.refresh()
             print("Can't locate chat-preview-list")
             ref_count+=1
             if ref_count>3:
-                logging.warning("after 3 try, Can't find chat-preview-list and exit")
+                logging.info("after 3 try, Can't find chat-preview-list and exit")
                 browser.close()
                 exit(1)
 
     logging.info("Find voice mail")
-    call_sound = browser.find_elements_by_class_name('voiceMailAudio')
-    
-    address=call_sound[-1].get_attribute('src')
-    logging.info("Close textnow.com")
-    browser.close()
+    # For Message: stale element reference: element is not attached to the page document bug. reference at https://stackoverflow.com/a/54230335
+    try:
+        call_sound = browser.find_elements_by_class_name('voiceMailAudio')
+        address=call_sound[-1].get_attribute('src')
+    except Exception as e:
+        call_sound = browser.find_elements_by_class_name('voiceMailAudio')
+        address=call_sound[-1].get_attribute('src')
     logging.info("Voice mail address is :{0}".format(address))
 
-    DownloadVoice(address)
+    if Download(address,phone_number,'voice.wav'):
+        tg_activation_code = ExtractCode("Accounts/{0}/voice.wav".format(phone_number))
+    else:
+        tg_activation_code='0'
+    return [tg_activation_code,phone_number]
 
 
 
@@ -366,11 +485,16 @@ def Main():
         textnow_username = sys.argv[1]
         textnow_password = sys.argv[2]
 
-        OpenBrowser(textnow_username,textnow_password)
-
-        tg_activation_code = ExtractCode("sound.wav")
-        SubmitCodeTG(tg_activation_code)
+        tg_activation_code,phone_number = OpenBrowser(textnow_username,textnow_password)
+        
+        # disable until find a method to get 100 percent accuracy
+        # SubmitCodeTG(tg_activation_code)
+        ForgetPassword()
+        GenerateFakePerson(phone_number)
+        browser.close()
         sleep(5)
+        TgMainPage()
+        logging.info('Complate sign up')
         ps.terminate(tg_desktop)
     else:
         logging.error("Error in inputs")
