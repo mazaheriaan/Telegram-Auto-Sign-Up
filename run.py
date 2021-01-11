@@ -494,7 +494,7 @@ def Main():
         ForgetPassword()
         GenerateFakePerson(phone_number)
         browser.close()
-        sleep(5)
+        sleep(3)
         TgMainPage()
         logging.info('Complate sign up')
         ps.terminate(tg_desktop)
