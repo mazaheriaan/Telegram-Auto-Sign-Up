@@ -284,21 +284,23 @@ def ExtractCode(sound_address : str):
 
 def Sign_Up(name : str, family : str):
     logging.info("Look for sign up button...")
-    sign_up_btn = pyautogui.locateOnScreen("img/sign_up.png", confidence=0.9) # Location of sign up button on screen
-    if sign_up_btn is not None:
-        logging.info('Look for last name textbox')
-        last_name_text=pyautogui.locateOnScreen('img/last_name.png',confidence=0.9) # Location of last name textbox on screen
-        if last_name_text is not None:
-            last_name_text = pyautogui.center(last_name_text)
-            btn_x,btn_y=last_name_text
+    # Try 3 time to improve accuracy
+    try_count = 0
+    while try_count < 3:
+        sign_up_btn = pyautogui.locateOnScreen("img/sign_up.png", confidence=0.9) # Location of sign up button on screen
+        if sign_up_btn is not None:
+            sign_up_btn=pyautogui.center(sign_up_btn)
+            btn_x, btn_y = sign_up_btn
             logging.info('Click on last name textbox')
-            last_name_text.click(btn_x,btn_y)
+            pyautogui.click(btn_x,btn_y-100)
             pyautogui.write(family)
             pyautogui.press('tab')
             pyautogui.write(name)
             pyautogui.press('enter')
             logging.info("Click on SIGN UP button....")
-
+            sleep(1)
+            break
+        sleep(.5) # Sleep for next try
 
 
 
