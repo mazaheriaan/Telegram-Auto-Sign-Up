@@ -319,19 +319,19 @@ def GenerateFakePerson(phone_number : str):
         sex = avatar_location.split('/')[-2]
         name = browser.find_element_by_class_name('name')
         name = name.find_element_by_class_name('click').text
-        name = name.split()[0]
+        first_name = name.split()[0]
         family = name.split()[-1]
 
         country = browser.find_elements_by_class_name('form-control')[-2]
         country = country.get_attribute('value')
 
-        logging.info("Fake name is {0} {1}. Sex is {2}. Your country is {3}".format(name,family,sex,country))
+        logging.info("Fake name is {0} {1}. Sex is {2}. Your country is {3}".format(first_name,family,sex,country))
 
-        Sign_Up(name,family)
+        Sign_Up(first_name,family)
 
         dest_file = '{0}/Accounts/{1}/{2}'.format(os.getcwd(), phone_number,'info.txt')
         with open(dest_file,'w') as f:
-            f.write('{0} {1}\n{2}\n{3}'.format(name,family,sex,country))
+            f.write('{0} {1}\n{2}\n{3}'.format(first_name,family,sex,country))
         logging.info('Create info.txt at {0}'.format(dest_file))
     else:
         logging.info('Address of voice mail is incorrect')
