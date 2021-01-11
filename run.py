@@ -84,6 +84,8 @@ def RunTelegram(phone_number : str):
         phone_number (str): phone number
     """
 
+    global tg_desktop
+
     tg_exe_location= 'Accounts/{phone}/Telegram.exe'.format(phone = phone_number)
 
     logging.info("Run telegram app with wine")
