@@ -27,6 +27,8 @@ logging.getLogger().setLevel(logging.INFO)
 # Global variable
 tg_desktop = '' # telegram desktop process.
 phone_number = '+1'
+tg_cli = '' # Telegram-cli process
+ps_log = '' # keep_log.sh process
 
 logging.info("Load chrome driver")
 browser = webdriver.Chrome(executable_path='{0}/chromedriver'.format(os.getcwd())) # Chrome driver
@@ -537,8 +539,42 @@ def TextNow(username : str, password : str):
     return activition_code
     #Automate Arctive telegram. for now is disabled
 
+def TelegramCLI():
+    global phone_number
+    global tg_cli
 
+    profile_path = '{0}/Accounts/{1}/telegram_cli'.format(os.getcwd,phone_number)
 
+    def Profile():
+        def Config():
+            def Create():            
+                new_user_config = '''
+{0} = {{
+config_directory = "{1}";
+msg_num = true;
+}};'''
+                new_user_config.format(phone_number,profile_path)
+
+                with open(r'~/.telegram-cli/config','a') as tg_cli_config:
+                    tg_cli_config.write(new_user_config)
+
+                logging.info('Telegram-cli config create at ~/.telegram-cli/config for new %s user' %(phone_number))
+
+            def Remove():
+                if os.path.isdir(profile_path):
+                    shutil.rmtree(profile_path)
+                    logging.info('Old telegram-cli config for %s was removed' %(phone_number))
+
+        def Start():            
+            tg_cli = ps.start("telegram-cli -p {0} -k tg-server.pub -W".format(phone_number))
+            logging.info('Telegram-cli for {0} user was started'.format(phone_number))
+
+        def Logging(): # Track Telegram logs include notification for extract activitation code
+            global ps_log
+
+            def Start():
+                ps_log = ps.start("bash keep_log.sh")
+                logging.info('Start logging Telegram desktop notification for find activation code')
 
 def Main():
     doctest.testmod()
@@ -555,13 +591,13 @@ def Main():
         
         # disable until find a method to get 100 percent accuracy
         # SubmitCodeTG(tg_activation_code)
-        TelegramDesktop.ForgetPassword()
+        TelegramDesktop().ForgetPassword()
         GenerateFakePerson()
         browser.close()
         sleep(3)
-        TelegramDesktop.TgMainPage()
+        TelegramDesktop().TgMainPage()
         logging.info('Complate sign up')
-        ps.terminate(tg_desktop)
+        #ps.terminate(tg_desktop)
     else:
         logging.error("Error in inputs")
         print("Please enter all inputs.\nemail password phone_number")
@@ -570,20 +606,6 @@ def Main():
 if __name__ == "__main__":
     Main()
 
-# Control telegram desktop to register new phone with keyboard and mouse
-# pyautogui.click(730,282)
-# pyautogui.moveTo(779, 517, duration = 1)
-# pyautogui.click(779, 517)
-# pyautogui.moveTo(997, 554, duration = 1)
-# pyautogui.click(997, 554)
-# pyautogui.doubleClick(997,554)
-# pyautogui.press('backspace')
-# pyautogui.write("+1")
-# pyautogui.press('tab')
-# pyautogui.write("6124219326")
-# pyautogui.press('enter')
-
-# sleep(4*60) # wait until telegram call
 
 # Start telegram cli
 # profile_path='/home/morteza/.telegram-cli/profile_7'
@@ -605,70 +627,3 @@ if __name__ == "__main__":
 # ps.write(tg_cli,code[0])
 # ps.terminate(keel_log)
 # os.remove('notif.log')
-
-
-
-    
-
-
-# browser = webdriver.Chrome(executable_path='chromedriver')
-# browser.get('https://www.textnow.com/login')
-
-# try:
-#     WebDriverWait(browser,30).until(EC.presence_of_element_located((By.CLASS_NAME, 'uikit-text-field__input')))
-#     print("Find uikit-text-field__input")
-#     user_name = browser.find_element_by_id('txt-username')
-#     print("Find txt-username")
-#     user_name.send_keys("mortezasaki91@gmail.com")
-#     password = browser.find_element_by_id('txt-password')
-#     print("Find txt-password")
-#     password.send_keys("6881977858",Keys.RETURN)
-
-#     try:
-#         WebDriverWait(browser,60).until(EC.presence_of_element_located((By.CLASS_NAME, 'chat-preview-list')))
-#         call_sound = browser.find_elements_by_class_name('voiceMailAudio')
-#         address=call_sound[-1].get_attribute('src')
-#         print(address)
-#         req = requests.get(address)
-
-#         if req.status_code == 200:
-#             with open('sound.wav','wb') as f:
-#                 f.write(req.content)
-            
-#             r = sr.Recognizer()
-
-
-#         with sr.AudioFile('./sound.wav') as source:
-            
-#             audio_text = r.listen(source)
-            
-#             try:
-                
-#                 # using google speech recognition
-#                 text = r.recognize_google(audio_text)
-#                 text = text.replace(' Evan','7') # addad 7 dar bazi mavaghe ke entehaye code 'Evan' khande mishe
-#                 print('Converting audio transcripts into text ...')
-#                 print(text)
-#                 code = re.search('\d{5,}',text) # Peida kardan code 5 raghami dar tamas
-                    
-#                 print(code[0])
-
-#                 ps.write(process,code[0]) # Input Activation Code
-
-#                 # pyautogui.moveTo(1010, 478, duration = 1)
-#                 # pyautogui.write(code[0]) # Enter code in telegram for signup
-#                 # pyautogui.press('enter')
-
-            
-#             except Exception as e:
-#                 print(str(e))
-#     except:
-#         print("error in chat-preview-list")
-
-# except:
-#     print("error in loadning txt-username")
-
-# input("Press enter to close")
-# ps.terminate(tg_cli)
-# browser.close()
-
