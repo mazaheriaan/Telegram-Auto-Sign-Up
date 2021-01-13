@@ -20,59 +20,35 @@ import doctest
 import logging
 import utility
 
+# Set logging in info mode
 logging.getLogger().setLevel(logging.INFO)
 
 
 # Global variable
 tg_desktop = '' # telegram desktop process.
-logging.info("Load chrome driver")
 phone_number = '+1'
 
+logging.info("Load chrome driver")
 browser = webdriver.Chrome(executable_path='{0}/chromedriver'.format(os.getcwd())) # Chrome driver
 logging.info("chrome driver was loaded")
 
-def CheckInput(email : str, password : str, country_code : str, phone_number : str) :
+def CheckInput(email : str, password : str) :
     """Check and validate input.
 
-    >>> print(CheckInput("test@gmail.com","1234567","+1","16124219326")) # Everythin is OK
+    >>> print(CheckInput("test@gmail.com","1234567")) # Everythin is OK
     True
-    >>> print(CheckInput("testgmail.com","1234567","+1","+16124219326")) # Wrong Email
+    >>> print(CheckInput("testgmail.com","1234567")) # Wrong Email
     False
-    >>> print(CheckInput("test@gmail.com","1234567","+1","3823")) # Wrong Phone Number
-    True
-    >>> print(CheckInput("test@gmail.com","","+1","+16124219326")) # Empty Password
+    >>> print(CheckInput("test@gmail.com","")) # Empty Password
     False
     """
-    validate_phone_pattern = r"^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$"
 
     if validators.email(email) and password:
         return True
     else:
         return False
 
-# When register be complate and user loged in
-def TgMainPage():
-    logging.info('Looking for Telegram main page')
-    while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
-        sleep(.5)
-    logging.info('User is now loggin')
 
-# Check when code enter for active Telegram is valid
-def CheckValidCode():
-    logging.info("Check that code is valid...")
-    sleep(.5)
-    invalid_code = pyautogui.locateOnScreen("img/invalid_code.png", confidence=0.9)
-    if invalid_code is not None :
-        logging.info("Activation code is invalid!")
-        exit()
-
-def ForgetPassword():
-    logging.info("Check that account set password")
-    sleep(.5)
-    forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
-    if forget_password is not None :
-        logging.info("Account has password")
-        exit()
 
 def Click(btn):
     if btn is not None:
@@ -151,7 +127,6 @@ def TelegramDesktop():
             return True
         return False
 
-
     # Check that flooding number
     def Flood():
         logging.info("Check too many try")
@@ -168,6 +143,30 @@ def TelegramDesktop():
             return True
         return False
 
+    # Check when code enter for active Telegram is valid
+    def CheckValidCode():
+        logging.info("Check that code is valid...")
+        sleep(.5)
+        invalid_code = pyautogui.locateOnScreen("img/invalid_code.png", confidence=0.9)
+        if invalid_code is not None :
+            logging.info("Activation code is invalid!")
+            exit()
+
+    def ForgetPassword():
+        logging.info("Check that account set password")
+        sleep(.5)
+        forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
+        if forget_password is not None :
+            logging.info("Account has password")
+            exit()
+
+    # When register be complate and user loged in
+    def TgMainPage():
+        logging.info('Looking for Telegram main page')
+        while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
+            sleep(.5)
+        logging.info('User is now loggin')
+    
 
     def SubmitPhoneNumber():
         global phone_number    
@@ -556,11 +555,11 @@ def Main():
         
         # disable until find a method to get 100 percent accuracy
         # SubmitCodeTG(tg_activation_code)
-        ForgetPassword()
+        TelegramDesktop.ForgetPassword()
         GenerateFakePerson()
         browser.close()
         sleep(3)
-        TgMainPage()
+        TelegramDesktop.TgMainPage()
         logging.info('Complate sign up')
         ps.terminate(tg_desktop)
     else:
