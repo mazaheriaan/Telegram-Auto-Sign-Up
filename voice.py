@@ -9,9 +9,9 @@ class Voice:
         else:
             raise "Invalid file"
 
-    def Cut(start : float = 0, end : float = -1):
+    def Cut(self, start : float = 0, end : float = -1):
         self.sound = self.sound[start:end]
 
-    def Save(output : str, format : str = 'wav' ):
+    def Save(self, output : str, format : str = 'wav' ):
         self.sound.export(output,format=format)
 
