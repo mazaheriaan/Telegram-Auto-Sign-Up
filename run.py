@@ -61,6 +61,23 @@ def Click(btn):
     return False
 
 
+
+def ForgetPassword():
+    logging.info("Check that account set password")
+    sleep(.5)
+    forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
+    if forget_password is not None :
+        logging.info("Account has password")
+        exit()
+
+# When register be complate and user loged in
+def TgMainPage():
+    logging.info('Looking for Telegram main page')
+    while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
+        sleep(.5)
+    logging.info('User is now loggin')
+    
+
 def TelegramDesktop():
     """Control Telegram desktop and control it with pyautogui.
     Args:
@@ -153,22 +170,6 @@ def TelegramDesktop():
         if invalid_code is not None :
             logging.info("Activation code is invalid!")
             exit()
-
-    def ForgetPassword():
-        logging.info("Check that account set password")
-        sleep(.5)
-        forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
-        if forget_password is not None :
-            logging.info("Account has password")
-            exit()
-
-    # When register be complate and user loged in
-    def TgMainPage():
-        logging.info('Looking for Telegram main page')
-        while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
-            sleep(.5)
-        logging.info('User is now loggin')
-    
 
     def SubmitPhoneNumber():
         global phone_number    
@@ -591,11 +592,11 @@ def Main():
         
         # disable until find a method to get 100 percent accuracy
         # SubmitCodeTG(tg_activation_code)
-        TelegramDesktop().ForgetPassword()
+        ForgetPassword()
         GenerateFakePerson()
         browser.close()
         sleep(3)
-        TelegramDesktop().TgMainPage()
+        TgMainPage()
         logging.info('Complate sign up')
         #ps.terminate(tg_desktop)
     else:
