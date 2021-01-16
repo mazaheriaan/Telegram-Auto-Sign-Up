@@ -50,10 +50,44 @@ def Word2Number(word : str):
     5
     """
     pattern = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight","nine"]
-    word = closeMatches(pattern, word)
-    print(word)
+    ignore_words = ['once', 'your']
+    if word not in ignore_words:
+        word = closeMatches(pattern, word)
     word = word[0] if len(word)>0 else None
     if word in pattern:
         return pattern.index(word)
     return None
 
+def ExtractNumber(text : str):
+    words = text.split()
+    result = []
+    for word in words:
+        num = Word2Number(word)
+        if num is not None:
+            result.append(str(num))
+    return result
+
+def GetCodes(text : str):
+    numbers = ExtractNumber(text)
+    code1 = ''.join(numbers[-5:])
+
+    if len(numbers) == 8:
+        code2 = numbers[-5:-3] + numbers[:-5]
+    elif len(numbers) == 7:
+        code2 = numbers[-5:-2] + numbers[:-5]
+    else:
+        raise Exception("Exctracted code is invalid")
+
+    result = []
+    result.append(code1)
+    for i in range(len(code1)):
+        if code1[i] != code2[i]:
+            new_code = numbers[-5:]
+            new_code[i] = code2[i]
+            result.append(''.join(new_code))
+    
+    print(result)
+    return result
+
+
+    
