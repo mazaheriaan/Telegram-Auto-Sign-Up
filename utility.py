@@ -4,6 +4,7 @@ import validators
 import requests
 import logging
 from difflib import get_close_matches 
+from time import sleep
 
 def CreateDirectory(path : str):
     try:
@@ -88,6 +89,13 @@ def GetCodes(text : str):
     
     print(result)
     return result
+
+# https://stackoverflow.com/a/9048049/9850815
+def RepeatFunc(times, f, *args, wait):
+    for i in range(times):
+        f(*args)
+        sleep(wait)
+
 
 
     
