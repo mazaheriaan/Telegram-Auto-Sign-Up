@@ -4,8 +4,23 @@ from voice import Voice
 
 class TestUtility(unittest.TestCase):
     def test_word2number(self):
-        result = utility.Word2Number("five one one once again your code is one one five one one goodbye")
-        self.assertEqual(result,"5 1 1 once again your code is 1 1 5 1 1 goodbye")
+        self.assertEqual(utility.Word2Number("zero"),0)
+        self.assertEqual(utility.Word2Number("one"),1)
+        self.assertEqual(utility.Word2Number("two"),2)
+        self.assertEqual(utility.Word2Number("to"),2)
+        self.assertEqual(utility.Word2Number("three"),3)
+        self.assertEqual(utility.Word2Number("tree"),3)
+        self.assertEqual(utility.Word2Number("four"),4)
+        self.assertEqual(utility.Word2Number("for"),4)
+        self.assertEqual(utility.Word2Number("five"),5)
+        self.assertEqual(utility.Word2Number("faive"),5)
+        self.assertEqual(utility.Word2Number("six"),6)
+        self.assertEqual(utility.Word2Number("sex"),6)
+        self.assertEqual(utility.Word2Number("seven"),7)
+        self.assertEqual(utility.Word2Number("even"),7)
+        self.assertEqual(utility.Word2Number("eight"),8)
+        self.assertEqual(utility.Word2Number("nine"),9)
+
 
 class TestVoice(unittest.TestCase):
     
@@ -19,16 +34,6 @@ class TestVoice(unittest.TestCase):
         voice.Boost()
         boost = voice.Save('sound_boost.wav')
         self.assertEqual(voice.Recognize(boost), 'two zero eight once again your code is five three two zero eight goodbye')
-
-        voice2 = Voice('Accounts/4097772933/voice.wav')
-        voice2.Boost()
-        boost2 = voice2.Save('sound_boost.wav')
-        self.assertEqual(voice2.Recognize(boost2), 'zero nine three eight once again your code is nine zero nine three eight goodbye')
-
-        voice3 = Voice('Accounts/6137065830/voice.wav')
-        voice3.Boost()
-        boost3 = voice2.Save('sound_boost.wav')
-        self.assertEqual(voice3.Recognize(boost3), 'eight six eight three goodbye eight six eight three goodbye')
 
 if __name__ == '__main__':
     unittest.main()

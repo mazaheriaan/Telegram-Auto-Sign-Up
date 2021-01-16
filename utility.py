@@ -3,6 +3,7 @@ import pyautogui
 import validators
 import requests
 import logging
+from difflib import get_close_matches 
 
 def CreateDirectory(path : str):
     try:
@@ -30,17 +31,29 @@ def DownloadFile(address : str, account : str, fileName : str):
     else:
         return False
 
+def closeMatches(patterns : str, word : str):
+    """ Function to find all close matches of input string in given list of possible strings 
+
+    Args:
+        patterns (str): pattern that must be match
+        word (str): word to be currect
+    """
+    return get_close_matches(word, patterns)
+
 def Word2Number(word : str):
     """ Convert word number to number
 
     Args:
         word (str): your word
 
-    >>>print(Word2Number('five one one once again your code is one one five one one goodbye'))
-    5 1 1 once again your code is 1 1 5 1 1 goodbye
+    >>>print(Word2Number('five'))
+    5
     """
-    units = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight","nine"]
-    for (i, w) in enumerate(units, start = 0):
-        word = word.replace(w, str(i))
-    
-    return word
+    pattern = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight","nine"]
+    word = closeMatches(pattern, word)
+    print(word)
+    word = word[0] if len(word)>0 else None
+    if word in pattern:
+        return pattern.index(word)
+    return None
+
