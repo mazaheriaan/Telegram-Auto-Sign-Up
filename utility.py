@@ -19,13 +19,13 @@ def SwitchDesktop(desktop_number : int):
     else:
         pyautogui.hotkey('winleft','pageup')
 
-def DownloadFile(address : str, account : str, fileName : str):
+def DownloadFile(address : str,dest : str):
     if validators.url(address):        
         req = requests.get(address)
 
         if req.status_code == 200:
-            dest_file = '{0}/Accounts/{1}/{2}'.format(os.getcwd(), account,fileName)
-            logging.info("Save file on {0}/Accounts/{1}/{2}".format(os.getcwd(), account,fileName))
+            dest_file = '{0}/{1}'.format(os.getcwd(), dest)
+            logging.info("Save file on {0}/{1}".format(os.getcwd(), dest))
             with open(dest_file,'wb') as f:
                 f.write(req.content)
         return True
@@ -91,10 +91,12 @@ def GetCodes(text : str):
     return result
 
 # https://stackoverflow.com/a/9048049/9850815
-def RepeatFunc(times, f, *args, wait):
+def RepeatFunc(times, f, wait = .5):
     for i in range(times):
-        f(*args)
+        if f() == True:
+            return True
         sleep(wait)
+    return False
 
 
 

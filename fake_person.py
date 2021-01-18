@@ -7,10 +7,8 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 import logging
 import utility
-
-
 class FakePerson:
-    def __init__(self, location, sex):
+    def __init__(self, location : str = 'random', sex : str = 'random'):
         logging.info("Load chrome driver")
         self.browser = webdriver.Chrome(executable_path='./chromedriver') # Chrome driver
         logging.info("chrome driver was loaded")
@@ -19,7 +17,7 @@ class FakePerson:
         self.browser.get('https://www.fakepersongenerator.com/Index/generate')
 
     def GetName(self):
-        name = self.browser.find_element_by_class_name('name')
+        name = self.browser.find_element_by_class_name('name').text
         return name
 
     def GetCountry(self):
@@ -34,21 +32,24 @@ class FakePerson:
         avatar_location = avatar_location.get_attribute('src')
         
         logging.info("Download {0}".format(avatar_location))
-        if utility.DownloadFile(avatar_location, dest, 'avatar.jpg'):
+        if utility.DownloadFile(avatar_location, dest + '/avatar.jpg'):
             return avatar_location
         
         return None
 
     def Generate(self, dest : str):
-        avatar_location = DownloadImage(dest)
+        avatar_location = self.DownloadImage(dest)
 
         if avatar_location is not None:
             sex = avatar_location.split('/')[-2]
-            name = GetName()
+            name = self.GetName()
             family = name.split()[-1]
             name = name.split()[0]
-            country = GetCountry()
+            country = self.GetCountry()
 
             return [avatar_location, name, family, sex, country]
         else:
             return False
+
+    def Close(self):
+        self.browser.close()

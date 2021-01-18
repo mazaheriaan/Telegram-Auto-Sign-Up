@@ -1,6 +1,7 @@
 import unittest
 import utility
 from voice import Voice
+from fake_person import *
 
 class TestUtility(unittest.TestCase):
     def test_word2number(self):
@@ -21,6 +22,16 @@ class TestUtility(unittest.TestCase):
         self.assertEqual(utility.Word2Number("eight"),8)
         self.assertEqual(utility.Word2Number("nine"),9)
 
+    def test_extractNumbere(self):
+        self.assertEqual(utility.ExtractNumber('two zero eight once again your code is five three two zero eight goodbye'),['2','0','8','5','3','2','0','8'])
+        self.assertEqual(utility.ExtractNumber('two zero eight once again your code is nine three to zero for goodbye'),['2','0','8','9','3','2','0','4'])
+        self.assertEqual(utility.ExtractNumber('two zero eight once again your code is nine tree to zero for goodbye'),['2','0','8','9','3','2','0','4'])
+
+    def test_getCode(self):
+        self.assertEqual(utility.GetCodes('two zero eight once again your code is nine tree to zero for goodbye'),['93204', '93208'])
+        self.assertEqual(utility.GetCodes('three five eight once again your code is nine tree to zero for goodbye'),['93204', '93304', '93254', '93208'])
+        self.assertEqual(utility.GetCodes('two zero eight once again your code is five three zero zero eight goodbye'), ['53008','53208'])
+
 
 class TestVoice(unittest.TestCase):
     
@@ -34,6 +45,13 @@ class TestVoice(unittest.TestCase):
         voice.Boost()
         boost = voice.Save('sound_boost.wav')
         self.assertEqual(voice.Recognize(boost), 'two zero eight once again your code is five three two zero eight goodbye')
+
+class TestFakePerson(unittest.TestCase):
+    def test_generate(self):
+        fakePerson = FakePerson()
+        result = fakePerson.Generate('Accounts/test')
+        self.assertTrue(result)
+        fakePerson.Close()
 
 if __name__ == '__main__':
     unittest.main()
