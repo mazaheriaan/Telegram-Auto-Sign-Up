@@ -47,7 +47,7 @@ class TextNow:
             logging.info("write password and press enter key")
             pass_elem.send_keys(password, Keys.RETURN)
 
-            if utility.RepeatFunc( __incurrect_account():
+            if utility.RepeatFunc( self.__incurrect_account()):
                 return False
             else:
                 return True
@@ -89,3 +89,8 @@ class TextNow:
             else:
                 logging.info("Voice mail download is fail!")
                 return False
+        except:
+            print("Error")
+
+    def Close(self):
+        self.browser.close()
