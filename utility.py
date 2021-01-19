@@ -73,12 +73,7 @@ def GetCodes(text : str):
     numbers = ExtractNumber(text)
     code1 = ''.join(numbers[-5:])
 
-    if len(numbers) == 8:
-        code2 = numbers[-5:-3] + numbers[:-5]
-    elif len(numbers) == 7:
-        code2 = numbers[-5:-2] + numbers[:-5]
-    else:
-        raise Exception("Exctracted code is invalid")
+    code2 = numbers[-5:-1 * (len(numbers)-5)] + numbers[:-5]
 
     result = []
     result.append(code1)
