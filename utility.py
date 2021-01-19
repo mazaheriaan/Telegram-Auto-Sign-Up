@@ -5,6 +5,7 @@ import requests
 import logging
 from difflib import get_close_matches 
 from time import sleep
+import re
 
 def CreateDirectory(path : str):
     try:
@@ -93,11 +94,14 @@ def GetCodes(text : str):
 # https://stackoverflow.com/a/9048049/9850815
 def RepeatFunc(times, f, wait = .5):
     for i in range(times):
-        if f() == True:
-            return True
+        res = f()
+        if res:
+            return res
         sleep(wait)
     return False
 
-
+def RemoveParenthesisFromPhone(phone_number : str):
+    phone_number = ''.join(re.findall('\d+',phone_number))
+    return phone_number
 
     
