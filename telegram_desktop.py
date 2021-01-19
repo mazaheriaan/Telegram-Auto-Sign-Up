@@ -12,7 +12,7 @@ class TelegramDesktop:
         self.phone_number = phone_number
         self.tg_desktop = '' # telegram desktop process.
 
-        if __make() and __run():
+        if self.__make() and self.__run():
             logging.info('Start Telegram desktop...')
 
     def __make(self):
@@ -61,7 +61,7 @@ class TelegramDesktop:
 
     def __start(self):
         start_btn = pyautogui.locateOnScreen("img/start_messaging.png", confidence=0.9) # Location of start messaging on screen
-        if __click(start_btn):
+        if self.__click(start_btn):
             logging.info("Click on Start messaging button")
             return True
         
@@ -69,7 +69,7 @@ class TelegramDesktop:
 
     def __qr_screen(self):
         qr_code = pyautogui.locateOnScreen("img/login_via_phone_number.png", confidence=0.9)
-        if __click(qr_code):
+        if self.__click(qr_code):
             return True
         return False
 
@@ -92,7 +92,7 @@ class TelegramDesktop:
         logging.info("Look for send via sms")
         via_sms = pyautogui.locateOnScreen("img/via_sms.png", confidence=0.9) # Location of phone_banned on screen
         if via_sms is not None:
-            __click(via_sms)
+            self.__click(via_sms)
             return True
         return False
 
@@ -122,7 +122,7 @@ class TelegramDesktop:
         else:
             return False
 
-    def __forget_password(self):
+    def Forget_password(self):
         logging.info("Check that account set password")
         sleep(.5)
         forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
@@ -130,7 +130,7 @@ class TelegramDesktop:
             logging.info("Account has password")
             exit()
 
-    def __sign_up(self, name : str, family : str):
+    def Sign_up(self, name : str, family : str):
         logging.info("Look for sign up button...")
         # Try 3 time to improve accuracy
         try_count = 0
@@ -152,14 +152,14 @@ class TelegramDesktop:
             sleep(.5) # Sleep for next try
 
     # When register be complate and user loged in
-    def __main_page(self):
+    def Main_page(self):
         logging.info('Looking for Telegram main page')
         while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
             sleep(.5)
         logging.info('User is now loggin')
 
     # After get activition code from voice mail enter it on telegram
-    def __active(self, code : str):
+    def Active(self, code : str):
         logging.info("Find NEXT button location")
         try_count = 0
         while try_count<3: # try to find NEXT Button
@@ -174,7 +174,7 @@ class TelegramDesktop:
                 pyautogui.press('enter')
                 logging.info("Logging to telegram...")
 
-                __check_valid_code() # Check that the code entered is correct
+                self.__check_valid_code() # Check that the code entered is correct
                 break
             try_count+=1
             sleep(.5)
@@ -185,20 +185,21 @@ class TelegramDesktop:
 
     def Start(self):
         logging.info("Detect Telegram is loading...")
-        if utility.RepeatFunc(20, __see(), 1) and utility.RepeatFunc(3, __start(), .5):
-            utility.RepeatFunc(3, __qr_screen(), .5)
+        if utility.RepeatFunc(20, self.__see, 1) and utility.RepeatFunc(3, self.__start, .5):
+            utility.RepeatFunc(3, self.__qr_screen, .5)
         else:
             logging.error("Error in loading Telegram desktop")
             return False
 
-        if utility.RepeatFunc(3, __submit_phone_number(), .5):
-            if utility.RepeatFunc(3, __banned, .2) or utility.RepeatFunc(3, __flood, .2):
-                logging.info('{0} is banned'.format(self, phone_number))
+        if utility.RepeatFunc(3, self.__submit_phone_number, .5):
+            sleep(5)
+            if utility.RepeatFunc(3, self.__banned, .2) or utility.RepeatFunc(3, self.__flood, .2):
+                logging.info('{0} is banned'.format(self.phone_number))
                 return False
-            utility.RepeatFunc(3,__send_via_sms(),.5)
+            utility.RepeatFunc(3,self.__send_via_sms,.5)
 
-            logging.info("Send activation code via telegram. wait 5 minutes")
-            sleep(5*60) # wait for activation code
+            logging.info("Send activation code via telegram. wait 4.30 minutes")
+            sleep(4*60+40) # wait for activation code
             return True
         else:
             logging.error("Start messaging button not found")

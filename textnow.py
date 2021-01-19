@@ -22,7 +22,7 @@ class TextNow:
     def __incurrect_account(self): # Check that username or password is currect and succesful login
         try: # Check if password is wrong
             logging.info("Checking correct username and password")
-            WebDriverWait(browser,10).until(EC.presence_of_element_located((By.CLASS_NAME, 'uikit-text--danger')))
+            WebDriverWait(self.browser,10).until(EC.presence_of_element_located((By.CLASS_NAME, 'uikit-text--danger')))
             logging.error("Username or password is incorrect")
             return True # Account is not currect
         except TimeoutException: # Password is OK
@@ -36,10 +36,10 @@ class TextNow:
             WebDriverWait(self.browser,60).until(EC.presence_of_element_located((By.CLASS_NAME, 'uikit-text-field__input')))
 
             logging.info("Find txt-username")
-            user_name = self.browser.find_element_by_id('txt-username')
+            user_elem = self.browser.find_element_by_id('txt-username')
 
             logging.info("write username")
-            user_name.send_keys(user_name)
+            user_elem.send_keys(user_name)
 
             logging.info("find txt-password")
             pass_elem = self.browser.find_element_by_id('txt-password')
@@ -47,7 +47,7 @@ class TextNow:
             logging.info("write password and press enter key")
             pass_elem.send_keys(password, Keys.RETURN)
 
-            if utility.RepeatFunc( self.__incurrect_account()):
+            if self.__incurrect_account():
                 return False
             else:
                 return True
@@ -57,25 +57,44 @@ class TextNow:
             self.browser.refresh()
             return False
 
-    #def PhoneNumber():
+    def AreaCode(self):
+        try:
+            logging.info("Checking for area code input")
+            WebDriverWait(self.browser,10).until(EC.presence_of_element_located((By.ID, 'enterAreaCodeForm')))
+            area_code_form = self.browser.find_element_by_id('enterAreaCodeForm')
+            txt = area_code_form.find_element_by_css_selector('#enterAreaCodeForm > div.content > input[type=text]')
+            txt.send_keys('912', Keys.RETURN)
+        except TimeoutException:
+            logging.info('Area code input not found.')
 
-    def GetPhoneNumber(self):
+    def TermAccept(self):
+        try:
+            logging.info("Accept 911 term of service")
+            WebDriverWait(self.browser,5).until(EC.presence_of_element_located((By.ID, 'iAgree')))
+            agree = self.browser.find_element_by_id('iAgree')
+            agree.click()
+        except:
+            logging.info('Accept button not found')
+
+
+    def ExtractPhoneNumber(self):
         try:
             logging.info("Looking for phoneNumber")
             WebDriverWait(self.browser,60).until(EC.presence_of_element_located((By.CLASS_NAME, 'phoneNumber ')))
             self.phone_number = self.browser.find_element_by_class_name('phoneNumber').text
             logging.info("Account phone number is {0}".format(self.phone_number))
-            return True
+            self.phone_number = utility.RemoveParenthesisFromPhone(self.phone_number)
+            return self.phone_number
         except TimeoutException:
             logging.warning("Can't locate phoneNumber. Refresh browser..")
-            return False
+            return None
 
     def DownloadVoiceMail(self):
         try:
             logging.info("Looking for voiceMailAudio")
             WebDriverWait(self.browser,60).until(EC.presence_of_element_located((By.CLASS_NAME, 'voiceMailAudio')))
             try:
-                call_sound = browser.find_elements_by_class_name('voiceMailAudio')
+                call_sound = self.browser.find_elements_by_class_name('voiceMailAudio')
                 address=call_sound[-1].get_attribute('src') # Last voice mail
             except Exception as e:
                 call_sound = self.browser.find_elements_by_class_name('voiceMailAudio')
@@ -83,14 +102,20 @@ class TextNow:
 
             logging.info("Voice mail address is :{0}".format(address))
             logging.info("Start download voice mail...")
-            if utility.DownloadFile(address, self.phone_number, 'voice.wav'):
+            dest = 'Accounts/{0}/voice.wav'.format(self.phone_number)
+            if utility.DownloadFile(address, dest):
                 logging.info("Voice mail download is complated!")
-                return True
+                return dest
             else:
                 logging.info("Voice mail download is fail!")
-                return False
+                return None
         except:
-            print("Error")
+            logging.error('Error in DownloadVoiceMail')
 
     def Close(self):
         self.browser.close()
+
+    def GetPhoneNumber(self):
+        if self.phone_number != '':
+            return self.phone_number
+        return None
