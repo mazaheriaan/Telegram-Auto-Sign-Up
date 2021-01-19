@@ -2,6 +2,8 @@ import unittest
 import utility
 from voice import Voice
 from fake_person import *
+from textnow import TextNow
+import warnings
 
 class TestUtility(unittest.TestCase):
     def test_word2number(self):
@@ -53,5 +55,15 @@ class TestFakePerson(unittest.TestCase):
         self.assertTrue(result)
         fakePerson.Close()
 
+class TestTextNow(unittest.TestCase):
+    def test_login(self):
+        textNow = TextNow()
+        if textNow.Login("sampleaccount16@gmail.com", "123456789"):
+            self.assertEqual(textNow.ExtractPhoneNumber(),'(409) 777-2933')
+        textNow.Close()
+
+
 if __name__ == '__main__':
-    unittest.main()
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', category=ImportWarning)
+            unittest.main()

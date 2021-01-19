@@ -124,11 +124,35 @@ class TelegramDesktop:
 
     def Forget_password(self):
         logging.info("Check that account set password")
-        sleep(.5)
         forget_password = pyautogui.locateOnScreen("img/forget_password.png", confidence=0.9)
         if forget_password is not None :
             logging.info("Account has password")
-            exit()
+            self.__click(forget_password)
+            while True:
+                ok_btn = pyautogui.locateOnScreen("img/ok_btn.png", confidence=0.9)
+                if ok_btn is not None:
+                    self.__click(ok_btn)
+                    while True:
+                        reset_account = pyautogui.locateOnScreen("img/reset_account.png", confidence=0.9)
+                        if reset_account is not None:
+                            self.__click(reset_account)
+                            while True:
+                                reset = pyautogui.locateOnScreen("img/reset.png", confidence=0.9)
+                                if reset is not None:
+                                    self.__click(reset)
+                                    sleep(2)
+                                    return True
+                                else:
+                                    logging.error('img/reset.png not found')
+                                    sleep(1)
+                            break
+                        else:
+                            logging.error('img/reset_account.png not found')
+                            sleep(1)
+                logging.error('img/ok_btn.png not found')
+                sleep(1)
+        else:
+            return False
 
     def Sign_up(self, name : str, family : str):
         logging.info("Look for sign up button...")

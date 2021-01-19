@@ -111,7 +111,7 @@ def Main():
                         codes = utility.GetCodes(text_from_voice)
                         logging.info('Codes is %s' %(codes))
                         tg_desktop.Active(codes[0])
-                        tg_desktop.Forget_password()
+                        utility.RepeatFunc(3,tg_desktop.Forget_password)
 
                         fakePerson = FakePerson()
                         fakePerson = fakePerson.Generate('Accounts/%s' %(phone_number))

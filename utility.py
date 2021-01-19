@@ -74,7 +74,7 @@ def GetCodes(text : str):
     code1 = ''.join(numbers[-5:])
 
     code2 = numbers[-5:-1 * (len(numbers)-5)] + numbers[:-5]
-
+    
     result = []
     result.append(code1)
     for i in range(len(code1)):
