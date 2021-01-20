@@ -99,27 +99,30 @@ def Main():
                 if tg_desktop.Start():
                 # Wait 4.30 minutes until get activitation code
 
-                    utility.RepeatFunc(10,txtNow.FindTelegramVoiceCall)
-                    sleep(5)
-                    voice_address = utility.RepeatFunc(3, txtNow.DownloadVoiceMail)
-                    if voice_address is not None:                
-                        new_voice = Voice(voice_address)
-                        logging.info('Boost voice mail...')
-                        new_voice.Boost()
-                        logging.info('Save boosted voice')
-                        new_voice.Save(voice_address)
-                        text_from_voice = new_voice.Recognize(voice_address)
-                        logging.info('Voise is : %s' %(text_from_voice))
-                        codes = utility.GetCodes(text_from_voice)
-                        logging.info('Codes is %s' %(codes))
-                        tg_desktop.Active(codes[0])
-                        utility.RepeatFunc(3,tg_desktop.Forget_password)
+                    if utility.RepeatFunc(10,txtNow.FindTelegramVoiceCall):
+                        sleep(5)
+                        voice_address = utility.RepeatFunc(3, txtNow.DownloadVoiceMail)
+                        if voice_address is not None:                
+                            new_voice = Voice(voice_address)
+                            logging.info('Boost voice mail...')
+                            new_voice.Boost()
+                            logging.info('Save boosted voice')
+                            new_voice.Save(voice_address)
+                            text_from_voice = new_voice.Recognize(voice_address)
+                            logging.info('Voise is : %s' %(text_from_voice))
+                            codes = utility.GetCodes(text_from_voice)
+                            logging.info('Codes is %s' %(codes))
+                            tg_desktop.Active(codes[0])
+                            utility.RepeatFunc(3,tg_desktop.Forget_password)
 
-                        fakePerson = FakePerson()
-                        fakePerson = fakePerson.Generate('Accounts/%s' %(phone_number))
-                        tg_desktop.Sign_up(fakePerson[1],fakePerson[2])
+                            fakePerson = FakePerson()
+                            fakePerson = fakePerson.Generate('Accounts/%s' %(phone_number))
+                            tg_desktop.Sign_up(fakePerson[1],fakePerson[2])
 
-                        tg_desktop.Main_page()
+                            tg_desktop.Main_page()
+                    else:
+                        logging.info('Account has password')
+                        ps.terminate(tg_desktop)
 
 
         #tg_activation_code = TextNow(textnow_username,textnow_password)
