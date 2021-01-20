@@ -141,7 +141,17 @@ class TelegramDesktop:
                                 if reset is not None:
                                     self.__click(reset)
                                     sleep(2)
-                                    return True
+                                    try_count = 0
+                                    while try_count < 3:
+                                        ok_btn = pyautogui.locateOnScreen("img/ok_btn.png", confidence=0.9)
+                                        if ok_btn is not None:
+                                            self.__click(ok_btn)
+                                            return False
+                                        else:
+                                            sleep(1)                                            
+                                            try_count+=1
+                                    sleep(1)
+                                    return True                                    
                                 else:
                                     logging.error('img/reset.png not found')
                                     sleep(1)
