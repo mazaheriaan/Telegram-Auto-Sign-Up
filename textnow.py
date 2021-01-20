@@ -98,10 +98,12 @@ class TextNow:
             if len(list_cell) > 0:
                 for l in list_cell:
                     message = l.find_elements_by_tag_name('span')
-                    print(message)
                     if 'voicemail' in message[1].text or 'Voicemail' in message[1].text or message[0].text == '(213) 320-2789':
                         logging.info('Click on telegram message for loading messages')
-                        l.click()
+                        try:
+                            l.click()
+                        except:
+                            logging.info('Item is not clickable')
                         return True
                 return False
             else:
