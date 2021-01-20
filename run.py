@@ -97,8 +97,10 @@ def Main():
             if phone_number is not None:
                 tg_desktop = TelegramDesktop(phone_number)
                 if tg_desktop.Start():
-                # Wait 5 minutes until get activitation code
+                # Wait 4.30 minutes until get activitation code
 
+                    utility.RepeatFunc(10,txtNow.FindTelegramVoiceCall)
+                    sleep(5)
                     voice_address = utility.RepeatFunc(3, txtNow.DownloadVoiceMail)
                     if voice_address is not None:                
                         new_voice = Voice(voice_address)

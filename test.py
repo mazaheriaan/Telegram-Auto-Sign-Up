@@ -56,11 +56,14 @@ class TestFakePerson(unittest.TestCase):
         fakePerson.Close()
 
 class TestTextNow(unittest.TestCase):
+
     def test_login(self):
         textNow = TextNow()
         if textNow.Login("sampleaccount16@gmail.com", "123456789"):
-            self.assertEqual(textNow.ExtractPhoneNumber(),'(409) 777-2933')
-        textNow.Close()
+            self.assertEqual(textNow.ExtractPhoneNumber(),'4097772933')
+            self.assertTrue(textNow.FindTelegramVoiceCall())
+            
+        #textNow.Close()
 
 
 if __name__ == '__main__':

@@ -4,10 +4,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException,NoSuchElementException
 import logging
 import utility
 
+logger = logging.getLogger()
+logger.level = logging.INFO
 class TextNow:
 
     def __init__(self):
@@ -89,6 +91,28 @@ class TextNow:
             logging.warning("Can't locate phoneNumber. Refresh browser..")
             return None
 
+    def FindTelegramVoiceCall(self):
+        try:
+            logging.info('Looking for Telegram message...')
+            list_cell = self.browser.find_elements_by_class_name('uikit-summary-list__cell-content--fill')
+            if len(list_cell) > 0:
+                for l in list_cell:
+                    message = l.find_elements_by_tag_name('span')
+                    print(message)
+                    if 'voicemail' in message[1].text or 'Voicemail' in message[1].text or message[0].text == '(213) 320-2789':
+                        logging.info('Click on telegram message for loading messages')
+                        l.click()
+                        return True
+                return False
+            else:
+                logging.info("Can't find Telegram message")
+                return False
+        except NoSuchElementException:
+            logging.info("Can't find Telegram message")
+            return False
+
+
+    
     def DownloadVoiceMail(self):
         try:
             logging.info("Looking for voiceMailAudio")
