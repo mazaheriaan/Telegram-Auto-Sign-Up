@@ -73,19 +73,18 @@ class TestAPI(unittest.TestCase):
     def test_register(self):
         api_key = '#$%lkbjflmef158@1!khbdf#$%^&asv@#$%^&ikjbasdk548785asd4f8s4f5sa1f8^ED^SE^&D&^DR*&SDR&F*S^%D*'
         url = 'https://api.membersgram.com/api/v2/fotor/register'
-        data = {'phonenumber' : '989111111114','name' : 'Gholi', 'status' : 1, 'family' : 'Golavi', 'country' : 'USA','apiKey' : api_key }
+        data = {'phonenumber' : '989111111120','name' : 'Gholi', 'status' : 1, 'family' : 'Golavi', 'gender' : '1', 'country' : 'USA','apiKey' : api_key }
         req = requests.post(url, data=data)
-        self.assertEqual(req.status_code, 200) 
         print(req.json())
+        self.assertEqual(req.status_code, 200) 
         self.assertEqual(req.json()['code'], 201) # The user has already registered
 
     def test_get_channel(self):
         api_key = '#$%lkbjflmef158@1!khbdf#$%^&asv@#$%^&ikjbasdk548785asd4f8s4f5sa1f8^ED^SE^&D&^DR*&SDR&F*S^%D*'
-        url = 'https://api.membersgram.com/api/v2/fotor/getChannel/989373449122'
+        url = 'https://api.membersgram.com/api/v2/fotor/getChannel/989111111113'
         data = {'apiKey' : api_key}
         req = requests.post(url, data=data)
         self.assertEqual(req.status_code, 200)
-        print(req.json())
         self.assertEqual(req.json()['code'], 200) # Succesfull geted channel
         self.assertIsNotNone(req.json()['data'])
         self.assertIsNotNone(req.json()['data']['_id'])
