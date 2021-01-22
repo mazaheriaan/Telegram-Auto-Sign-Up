@@ -4,7 +4,7 @@ class RegisterAPIStatus(enum.Enum):
     Succesfull : 200
     AlreadyJoined : 201
 
-class Gender(enum.enum):
+class Gender(enum.Enum):
     Man : 0
     Woman : 1
 
