@@ -4,6 +4,7 @@ from voice import Voice
 from fake_person import *
 from textnow import TextNow
 import warnings
+import requests
 
 class TestUtility(unittest.TestCase):
     def test_word2number(self):
@@ -34,7 +35,8 @@ class TestUtility(unittest.TestCase):
         self.assertEqual(utility.GetCodes('three five eight once again your code is nine tree to zero for goodbye'),['93204', '93304', '93254', '93208'])
         self.assertEqual(utility.GetCodes('two zero eight once again your code is five three zero zero eight goodbye'), ['53008','53208'])
 
-
+# https://stackoverflow.com/a/16138561/9850815
+@unittest.skip("This is ok")
 class TestVoice(unittest.TestCase):
     
     def test_cut(self):
@@ -48,13 +50,14 @@ class TestVoice(unittest.TestCase):
         boost = voice.Save('sound_boost.wav')
         self.assertEqual(voice.Recognize(boost), 'two zero eight once again your code is five three two zero eight goodbye')
 
+@unittest.skip("This is ok")
 class TestFakePerson(unittest.TestCase):
     def test_generate(self):
         fakePerson = FakePerson()
         result = fakePerson.Generate('Accounts/test')
         self.assertTrue(result)
         fakePerson.Close()
-
+@unittest.skip("This is ok")
 class TestTextNow(unittest.TestCase):
 
     def test_login(self):
@@ -64,6 +67,30 @@ class TestTextNow(unittest.TestCase):
             self.assertTrue(textNow.FindTelegramVoiceCall())
             
         #textNow.Close()
+
+class TestAPI(unittest.TestCase):
+
+    def test_register(self):
+        api_key = '#$%lkbjflmef158@1!khbdf#$%^&asv@#$%^&ikjbasdk548785asd4f8s4f5sa1f8^ED^SE^&D&^DR*&SDR&F*S^%D*'
+        url = 'https://api.membersgram.com/api/v2/fotor/register'
+        data = {'phonenumber' : '989111111114','name' : 'Gholi', 'status' : 1, 'family' : 'Golavi', 'country' : 'USA','apiKey' : api_key }
+        req = requests.post(url, data=data)
+        self.assertEqual(req.status_code, 200) 
+        print(req.json())
+        self.assertEqual(req.json()['code'], 201) # The user has already registered
+
+    def test_get_channel(self):
+        api_key = '#$%lkbjflmef158@1!khbdf#$%^&asv@#$%^&ikjbasdk548785asd4f8s4f5sa1f8^ED^SE^&D&^DR*&SDR&F*S^%D*'
+        url = 'https://api.membersgram.com/api/v2/fotor/getChannel/989373449122'
+        data = {'apiKey' : api_key}
+        req = requests.post(url, data=data)
+        self.assertEqual(req.status_code, 200)
+        print(req.json())
+        self.assertEqual(req.json()['code'], 200) # Succesfull geted channel
+        self.assertIsNotNone(req.json()['data'])
+        self.assertIsNotNone(req.json()['data']['_id'])
+        self.assertIsNotNone(req.json()['data']['username'])
+
 
 
 if __name__ == '__main__':
