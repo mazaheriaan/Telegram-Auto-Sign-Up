@@ -191,6 +191,7 @@ class TelegramDesktop:
         while pyautogui.locateOnScreen("img/tg_main.png", confidence=0.9) is None:
             sleep(.5)
         logging.info('User is now loggin')
+        return True
 
     # After get activition code from voice mail enter it on telegram
     def Active(self, code : str):
