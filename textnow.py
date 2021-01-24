@@ -7,6 +7,9 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException,NoSuchElementException
 import logging
 import utility
+from time import sleep
+import random
+import pyautogui
 
 logger = logging.getLogger()
 logger.level = logging.INFO
@@ -15,11 +18,26 @@ class TextNow:
     def __init__(self):
         self.phone_number = ''
         logging.info("Load chrome driver")
-        self.browser = webdriver.Chrome(executable_path='./chromedriver') # Chrome driver
+
+        chrome_options = webdriver.ChromeOptions()
+
+        # chrome_options.add_argument('--user-agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36"')
+        # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
+        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        chrome_options.add_argument("start-maximized")
+        chrome_options.add_argument("--user-data-dir=/home/morteza/.config/google-chrome")
+        chrome_options.add_argument('--profile-directory=Profile 1')
+
+        self.browser = webdriver.Chrome(executable_path='./chromedriver', chrome_options=chrome_options) # Chrome driver
         logging.info("chrome driver was loaded")
 
-        logging.info("Open https://www.textnow.com/login")
-        self.browser.get('https://www.textnow.com/login')
+
+
+        logging.info("Open https://www.textnow.com/")
+        self.browser.get('https://www.textnow.com')
+
+        login_btn = self.browser.find_element_by_class_name('login-button')
+        login_btn.click()
 
     def __incurrect_account(self): # Check that username or password is currect and succesful login
         try: # Check if password is wrong
@@ -41,13 +59,29 @@ class TextNow:
             user_elem = self.browser.find_element_by_id('txt-username')
 
             logging.info("write username")
-            user_elem.send_keys(user_name)
+            for char in user_name:
+                user_elem.send_keys(char)
+                sleep(random.randrange(1,5)/10)
+            
+            sleep(2)
 
             logging.info("find txt-password")
             pass_elem = self.browser.find_element_by_id('txt-password')
         
             logging.info("write password and press enter key")
-            pass_elem.send_keys(password, Keys.RETURN)
+            for char in password:
+                pass_elem.send_keys(char)
+                sleep(random.randrange(1,5)/10)
+
+            sleep(2)
+            tick_btn = pyautogui.locateOnScreen("img/textnow_tick.png", confidence=0.9)
+            if tick_btn is not None:
+                btn = pyautogui.center(tick_btn)
+                btn_x, btn_y = btn
+                pyautogui.click(btn_x,btn_y)
+            sleep(1)
+            pyautogui.press('enter')
+            # pass_elem.send_keys(Keys.RETURN)
 
             if self.__incurrect_account():
                 return False
