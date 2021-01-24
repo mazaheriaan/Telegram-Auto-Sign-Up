@@ -5,6 +5,8 @@ from fake_person import *
 from textnow import TextNow
 import warnings
 import requests
+from api import API
+from enums import *
 
 class TestUtility(unittest.TestCase):
     def test_word2number(self):
@@ -90,7 +92,12 @@ class TestAPI(unittest.TestCase):
         self.assertIsNotNone(req.json()['data']['_id'])
         self.assertIsNotNone(req.json()['data']['username'])
 
+class  TestAPIClass(unittest.TestCase):
 
+    def test_call_register_API(self):
+        _api = API('989111111130')
+        res = _api.CallRegisterAPI('Morteza', 'Saki', Gender.Man.value, 'Iran', status = TelegramRegisterStats.Succesfull.value)
+        self.assertTrue(res)
 
 if __name__ == '__main__':
         with warnings.catch_warnings():
