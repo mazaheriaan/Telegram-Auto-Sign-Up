@@ -3,7 +3,7 @@ chardet==4.0.0
 decorator==4.4.2
 idna==2.10
 MouseInfo==0.1.3
-numpy==1.19.4
+numpy==1.22.0
 opencv-python==4.5.1.48
 Pillow==8.1.0
 PyAutoGUI==0.9.52
